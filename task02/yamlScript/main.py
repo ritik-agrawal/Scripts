@@ -8,12 +8,12 @@ def getEncoding(filepath):
 		result = chardet.detect(data)
 		return result['encoding']
 
-def read_yaml_with_safe_loader(file_path, encoding):
+def readYamlWithSafeLoader(file_path, encoding):
     with open(file_path, 'r', encoding=encoding) as file:
         data = yaml.load(file, Loader=yaml.SafeLoader)
         return data
 
-def guiding_dictionary():
+def input():
 	result = {}
 	result['CUFXProductOfferingDataModelAndServices']   = 'ProductOfferingMessage'
 	result['CUFXProductServiceRequestModelAndServices'] = 'ProductServiceRequestMessage'
@@ -21,17 +21,17 @@ def guiding_dictionary():
 	result['CUFXPartyAssociationDataModelAndServices']  = 'PartyAssociationMessage'
 	return result
 
-def get_child_dict(data, tag):
+def getChildDict(data, tag):
 	result = {}
-	result[OPENAPI] = yaml_builder(OPENAPI, data, tag)
-	result[INFO] = yaml_builder(INFO, data, tag)
-	result[SECURITY] = yaml_builder(SECURITY, data, tag)
-	result[TAGS] = yaml_builder(TAGS, data, tag)
-	result[PATHS] = yaml_builder(PATHS, data, tag)
+	result[OPENAPI] = yamlBuilder(OPENAPI, data, tag)
+	result[INFO] = yamlBuilder(INFO, data, tag)
+	result[SECURITY] = yamlBuilder(SECURITY, data, tag)
+	result[TAGS] = yamlBuilder(TAGS, data, tag)
+	result[PATHS] = yamlBuilder(PATHS, data, tag)
 	return result
 	
 
-def yaml_builder(key ,data, tag):
+def yamlBuilder(key ,data, tag):
 	switch = {
 		'openapi' : getOpenApi(data),
 		'info' : getInfo(data),
@@ -107,15 +107,15 @@ COMPONENTS = 'components'
 
 
 encoding = getEncoding(FILE_PATH)
-parent_yaml = read_yaml_with_safe_loader(FILE_PATH, encoding)
+parent_yaml = readYamlWithSafeLoader(FILE_PATH, encoding)
 
-guide = guiding_dictionary()
+guide = input()
 os.makedirs(OUTPUT_PATH, exist_ok = True)
 for key in guide:
 	service = key
 	tag = guide[key]
 	print("Creating yaml for service {} with tag as {}".format(service, tag))
-	childDict = get_child_dict(parent_yaml, tag)
+	childDict = getChildDict(parent_yaml, tag)
 	outputFilename = YAML_FILENAME.format(service)
 	outputPath = OUTPUT_PATH+outputFilename
 	with open(outputPath, 'w') as file:
